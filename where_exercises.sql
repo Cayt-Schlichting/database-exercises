@@ -12,6 +12,7 @@ SHOW CREATE TABLE employees;
 
 #2 emp table doesn't specify if current or former, so assuming it holds both. 
 SELECT * FROM employees WHERE first_name IN ('Irena', 'Vidya', 'Maya'); #709 rows returned
+#3
 SELECT * FROM employees 
 WHERE first_name = 'Irena' 
   OR first_name='Vidya' 
@@ -26,6 +27,14 @@ SELECT * FROM employees WHERE last_name LIKE 'E%'; #7330
 SELECT * FROM employees 
 WHERE last_name LIKE 'E%'
 	OR last_name LIKE '%E'; #30723. (30723 - 7330)= 23393 end with E but don't start with it
+#Adding programmatic 6b
+SELECT * FROM employees
+WHERE last_name	LIKE '%E'
+	AND last_name NOT LIKE 'E%'; #Still 23393
+#Formatting tests
+SELECT * FROM employees
+WHERE last_name LIKE '%E'
+	AND NOT last_name LIKE 'E%'; #Still 23393 - but less readable to me
 #7
 SELECT * FROM employees WHERE last_name LIKE 'E%E'; #899 - start and end with E
 SELECT * FROM employees WHERE last_name LIKE '%E'; #24292 - ends with E
