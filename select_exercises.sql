@@ -10,8 +10,9 @@ SELECT DISTINCT artist FROM albums; #23 distinct artisits
 SELECT name FROM albums WHERE artist = 'Pink Floyd'; #4a
 SELECT release_date FROM albums WHERE name = 'Sgt. Pepper''s Lonely Hearts Club Band'; #4b
 SELECT genre FROM albums WHERE name = 'Nevermind'; #4c
+#for these next few, I'm selecting all so I can see all the details.  Not sure if you just wanted the name or not.
 SELECT * FROM albums WHERE (release_date >= 1990 AND release_date < 2000); #4d 
-SELECT * FROM albums WHERE sales <= 20; #4e - ugh, no metadata indicating sales are in millions
+SELECT * FROM albums WHERE sales < 20; #4e - ugh, no metadata indicating sales are in millions. need to find where that lives.
 SELECT * FROM albums WHERE genre = 'Rock'; #4f - it's looking for an exact string match, so won't include 'hard rock'
 -- SELECT * FROM albums WHERE genre LIKE '%Rock%'; #playing around with contains substring options
 
