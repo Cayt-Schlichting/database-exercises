@@ -20,7 +20,7 @@ GROUP BY last_name;
 -- 'Qiwen'
 
 #6
-SELECT last_name,COUNT(last_name)
+SELECT last_name,COUNT(last_name) AS num_emp
 FROM employees
 WHERE last_name LIKE '%Q%' AND last_name NOT LIKE '%qu%'
 GROUP BY last_name;
@@ -35,6 +35,17 @@ WHERE first_name IN ('Irena','Vidya','Maya')
 GROUP BY gender;
 -- 'M','441'
 -- 'F','268'
+#did this a second way.  not sure if you wanted count of m/f with those names, or count of m/f by each name
+SELECT gender, first_name, COUNT(*)
+FROM employees
+WHERE first_name IN ('Irena','Vidya','Maya')
+GROUP BY gender,first_name;
+-- 'M','Vidya','151'
+-- 'M','Irena','144'
+-- 'F','Irena','97'
+-- 'F','Maya','90'
+-- 'F','Vidya','81'
+-- 'M','Maya','146'
 
 #8 
 SELECT 
@@ -47,10 +58,9 @@ SELECT
 	)) AS username,
     COUNT(*) AS num_username
 FROM employees
-GROUP BY username
-HAVING num_username >1; #yes there are duplicates
+GROUP BY username;
 
-#FANCY 8 - nested query.  get simple SUM from first table
+#FANCY 8 - Get count of duplicates. nested query-get simple SUM from first table
 SELECT SUM(num_username) AS num_duplicates
 FROM (
 	SELECT 
@@ -68,7 +78,7 @@ FROM (
 ) AS T1;
 
 #9
-#A) average salary per employee. -technically just the average of all salaries
+#A) average salary per employee. -technically just the average of all salaries - not weighted average
 SELECT emp_no, CONCAT('$',FORMAT(AVG(salary), 2, 'en-US')) AS avg_salary #playing with formating
 FROM salaries
 GROUP BY emp_no;
@@ -83,8 +93,8 @@ GROUP BY dept_no; #summarize by dept and count.
 #C/D/E/F) number of different salaries per employee, min, max, stddev
 SELECT emp_no, 
 	COUNT(*) AS num_salaries, #doesn't actually check that they are different, just that there are multiple entries
-	CONCAT('$',FORMAT(MIN(salary)), 2, 'EN-US') AS min_salary
-    CONCAT('$',FORMAT(MAX(salary)), 2, 'EN-US') AS max_salary
+	CONCAT('$',FORMAT(MIN(salary)), 2, 'EN-US') AS min_salary,
+    CONCAT('$',FORMAT(MAX(salary)), 2, 'EN-US') AS max_salary,
     CONCAT('$',FORMAT(STDEV(salary)), 2, 'EN-US') AS stdev_salary
 FROM salaries
 GROUP BY emp_no;
