@@ -1,5 +1,7 @@
 ###JOIN DATABASE###
 USE join_example_db;
+SELECT * FROM users;
+SELECT * FROM roles;
 #2-JOIN
 SELECT *
 FROM users AS u
@@ -14,14 +16,14 @@ FROM users AS u
 RIGHT JOIN roles AS r on u.role_id = r.id;
 
 #3
-SELECT r.name, COUNT(*) AS num_users
+SELECT r.name, COUNT(u.id) AS num_users
 FROM roles AS r
 LEFT JOIN users AS u on r.id = u.role_id
 GROUP BY r.name;
 -- 'admin','1'
 -- 'author','1'
 -- 'reviewer','2'
--- 'commenter','1'
+-- 'commenter','0'
 
 ### EMPLOYEES DATABASE ###
 USE employees;
@@ -29,8 +31,9 @@ USE employees;
 SELECT d.dept_name AS 'Department Name', CONCAT(e.first_name,' ',e.last_name) AS 'Department Manager'
 FROM dept_manager AS dm
 	JOIN departments AS d ON dm.dept_no = d.dept_no
+    #JOIN departments AS d USING(dept_no) <<<<THIS IS SO COOL
     JOIN employees AS e ON dm.emp_no = e.emp_no
-WHERE dm.to_date >= CURDATE();
+WHERE dm.to_date >= CURDATE(); 
 #3 Name of all depts currently managed by women
 SELECT d.dept_name AS 'Department Name', CONCAT(e.first_name,' ',e.last_name) AS 'Department Manager'
 FROM dept_manager AS dm
@@ -111,7 +114,7 @@ ORDER BY avg_salary DESC;
 # data if employees NEVER changed departments (at which point the dates employees were in a dept wouldn't matter
 # and that still is just a historical average of salaries...which makes the number not very useful unless you are looking 
 # for a general idea of departments that have been paid the highest (which also doesn't work well as it assumes
-# all departments have always existed.alter
+# all departments were created at the same time.
 #This is a better query:
 SELECT d.dept_name, ROUND(AVG(s.salary)) AS 'avg_salary'
 FROM salaries AS s
@@ -138,6 +141,7 @@ FROM ( #Make derived table that has dept no, dept name and manager name
 JOIN dept_emp AS de ON d1.dept_no = de.dept_no
 JOIN employees AS e ON de.emp_no = e.emp_no
 WHERE de.to_date >= CURDATE();
+
 #12 Who is the highest paid employee in each department
 SELECT CONCAT(e.first_name,' ',e.last_name) AS 'Employee name',
 	d.dept_name AS 'Department Name',
@@ -156,8 +160,4 @@ FROM ( #CREATES a table with all current dept employees, their current salary, a
 JOIN employees AS e ON sr.emp_no = e.emp_no
 JOIN departments AS d ON sr.dept_no = d.dept_no
 WHERE sr.dept_sal_rank = 1;
-
-
-
-    
 
