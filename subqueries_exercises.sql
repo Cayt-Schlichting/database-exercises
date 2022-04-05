@@ -35,7 +35,7 @@ WHERE emp_no IN (
 	#subquery find list of current emp_no for employees named 'aamod'
     SELECT emp_no FROM employees WHERE first_name="Aamod"
     )
-    AND to_date >= CURDATE();
+    AND to_date >= CURDATE(); #assumes title to_date is also accurate representation of 'current'
     
 #3 How many ppl in employees table no longer work for the company
 SELECT COUNT(*)
@@ -44,11 +44,11 @@ WHERE emp_no NOT IN (
 	#This table of current employee ids
 	SELECT e.emp_no
 	FROM employees as e
-		JOIN dept_emp AS de USING(emp_no)
+		JOIN dept_emp AS de USING(emp_no) #joining was unnecesary
 	WHERE de.to_date >= CURDATE()
 	); #59900
     
-#4 Find all current department managers that are female
+#4 Find all current department managers that are female - subquery seemed unnecessary
 SELECT CONCAT(e.first_name,' ',e.last_name)
 FROM dept_manager as dm
 	LEFT JOIN employees AS e USING(emp_no)
@@ -68,32 +68,32 @@ WHERE salary > (
 	) AND to_date >= CURDATE();
 
 #6 How many current salaries are w/i 1 stddev of current highest salary
-# Answers: 78 salaries.  .03% of current salaries
+# Answers: 83 salaries.  .03% of current salaries
 SELECT COUNT(*)
 FROM salaries
 WHERE to_date >= CURDATE()
 AND salary >= (
 	#max salary minus one standard deviation
-	(SELECT MAX(salary) FROM salaries WHERE to_date >- CURDATE())
-	-(SELECT STDDEV(salary) FROM salaries WHERE to_date >- CURDATE())
-); #78
+	(SELECT MAX(salary) FROM salaries WHERE to_date >= CURDATE())
+	-(SELECT STDDEV(salary) FROM salaries WHERE to_date >= CURDATE())
+); #83
 #Get the percentage
 SELECT (
-	( #number w/i one std dev
+	( #salary number w/i one std dev
     SELECT COUNT(*)
 	FROM salaries
 	WHERE to_date >= CURDATE()
 	AND salary >= (
 		#max salary minus one standard deviation
-		(SELECT MAX(salary) FROM salaries WHERE to_date >- CURDATE())
-		-(SELECT STDDEV(salary) FROM salaries WHERE to_date >- CURDATE())
+		(SELECT MAX(salary) FROM salaries WHERE to_date >= CURDATE())
+		-(SELECT STDDEV(salary) FROM salaries WHERE to_date >= CURDATE())
 		)) /
-		( #total current salaries
-		SELECT COUNT(*)
-		FROM salaries
-		WHERE to_date >= CURDATE()
-		)
-    ); #.03%
+	( #total current salaries
+	SELECT COUNT(*)
+	FROM salaries
+	WHERE to_date >= CURDATE()
+	)
+    )*100; #.0346%
 
 #B1 Find all dep names that currently have female managers
 SELECT d.dept_name
