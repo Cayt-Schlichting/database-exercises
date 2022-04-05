@@ -95,4 +95,23 @@ SELECT (
 		)
     ); #.03%
 
-
+#B1 Find all dep names that currently have female managers
+SELECT d.dept_name
+FROM dept_manager as dm
+	LEFT JOIN employees AS e USING(emp_no)
+    LEFT JOIN departments AS d USING(dept_no)
+WHERE dm.to_date >= CURDATE() 
+	AND e.gender = 'F';
+    
+#B2 Find the first and last name
+SELECT first_name, last_name
+FROM employees
+WHERE emp_no = 
+    (SELECT emp_no FROM salaries WHERE to_date >= CURDATE() ORDER BY salary DESC LIMIT 1);
+    
+#B3 Find dept name that the employee with the highest salary works in
+SELECT d.dept_name
+FROM dept_emp AS de
+	JOIN departments AS d USING(dept_no)
+WHERE de.emp_no = 
+    (SELECT emp_no FROM salaries WHERE to_date >= CURDATE() ORDER BY salary DESC LIMIT 1);
