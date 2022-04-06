@@ -43,7 +43,9 @@ CREATE TEMPORARY TABLE jemison_1764.payment_cents AS
 SELECT payment_id, customer_id, staff_id, rental_id, round(amount*100) AS amount_cents, payment_date, last_update
 FROM payment;
 USE jemison_1764;
+ALTER TABLE payment_cents MODIFY amount_cents INT; #convert column to int from dec
 SELECT * FROM payment_cents LIMIT 2;
+DESCRIBE payment_cents;
 #NOTE: can't just duplicate table then multiple amount by 100. Amount column created using DECIMAL(5,2)
 #. Meaning value can't go over 3 digits before the decimal. Format is ###.##
 
