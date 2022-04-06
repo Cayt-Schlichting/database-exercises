@@ -58,10 +58,12 @@ CREATE TEMPORARY TABLE jemison_1764.avg_pay_dept AS (
 	WHERE s.to_date >= CURDATE() #only current salaries
 	GROUP BY de.dept_no);
 
+SELECT * FROM jemison_1764.avg_pay_dept;
+
 USE jemison_1764;
 SELECT d.dept_name as 'Department', CONCAT('$',FORMAT(avg_pay_dept.avg_dept_sal,0)) AS 'Average Salary',
 	FORMAT(( 
-		#zscore = (deptavg - histavg)/stdev(histavg)
+		#zscore = (deptavg - histavg)/stdev(hist_data)
 		(avg_dept_sal - (SELECT AVG(salary) FROM employees.salaries))
 		/ (SELECT STDDEV(salary) FROM employees.salaries)
     ),2) AS zscore
