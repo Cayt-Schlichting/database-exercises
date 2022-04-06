@@ -88,9 +88,38 @@ ORDER BY month;
 #.        second one assumes inventory of sale doesn't switch stores
 
 #8 Find film title, customer name, cust phone and cust add for all outstanding DVDs
-#TEST THIS QUERY TOMORROW
 SELECT title, first_name, last_name, phone
-FROM (SELECT inventory_id, customer_id FROM rental WHERE return_date IS NULL)
+FROM (SELECT inventory_id, customer_id FROM rental WHERE return_date IS NULL) AS t1
 	JOIN customer USING(customer_id)
     JOIN inventory USING(inventory_id)
-    JOIN film USING(film_id);
+    JOIN film USING(film_id)
+    JOIN address USING (address_id);
+
+### EMPLOYEES DATABASE ###
+USE employees;
+#1 - how much do the current managers get paid vs average salary? 
+SELECT dept_name, 
+	ROUND(avg_salary) AS 'Department Average Salary', 
+    CONCAT(e.first_name,' ',e.last_name) AS 'Department Manager', 
+    ROUND(salary) AS 'Manager''s Salary',
+    ROUND(salary-avg_salary) AS pay_difference
+FROM (
+	#Subquery w/ dept average
+	SELECT dept_no, AVG(salary) AS avg_salary
+	FROM salaries AS s
+		JOIN dept_emp AS de USING(emp_no)
+	WHERE s.to_date >= CURDATE() 
+		AND de.to_date >= CURDATE()
+	GROUP BY dept_no
+    ) AS t_dep_avg_sal
+	JOIN departments USING(dept_no)
+    JOIN dept_manager as dm USING(dept_no)
+    JOIN employees as e USING(emp_no)
+    JOIN salaries as s USING(emp_no)
+WHERE s.to_date >= CURDATE()
+	AND dm.to_date >= CURDATE()
+ORDER BY pay_difference;
+
+### WORLD DATABASE ###
+#Languages spoken in Santa Monica
+
