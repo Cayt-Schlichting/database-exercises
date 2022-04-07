@@ -121,5 +121,46 @@ WHERE s.to_date >= CURDATE()
 ORDER BY pay_difference;
 
 ### WORLD DATABASE ###
-#Languages spoken in Santa Monica
+USE world;
+#Languages spoken in Santa Monica - This is a terrible question. 
+#Language is broken down by country, it is inappropriate to assume the same percentage of language spoken
+# at the country level also applies to the city level
+SELECT * FROM country LIMIT 5;
+SELECT Language, percentage 
+FROM countrylanguage as cl
+	#JOIN country as c ON cl.countryCode = c.code
+    JOIN city USING(CountryCode)
+WHERE city.name = 'Santa Monica';
+#How many different countries are in each region
+SELECT Region, COUNT(Code) AS num_countries
+FROM country
+Group By Region
+ORDER BY num_countries DESC;
+#north america so low b/c they break into south, central and north america
+SELECT DISTINCT Region FROM country WHERE Region LIKE "%America";
+#What is the population for each region
+SELECT Region, SUM(population) as population
+FROM country
+GROUP BY Region;
+#What is the population for each region
+SELECT Continent, SUM(population) as population
+FROM country
+GROUP BY Continent
+ORDER BY population DESC;
+
+#What is the average life expectancy globally
+#The wrong way:
+SELECT AVG(LifeExpectancy) as 'Global Life Expectancy'
+FROM country; #66.486
+#population adjusted
+# (country pop * country life expectancy) / sum(pop)
+SELECT SUM(val)/SUM(Population) as 'Global Life Expectancy'
+FROM ( #grab table of population and pop*lifeExp per row
+	SELECT Population, (Population * LifeExpectancy) AS val FROM country
+    ) as T1; #66.806
+
+#avg life expectancy per continent - weighted
+### WORK ON THIS LATER ###
+-- SELECT continent, SUM(Population) AS pop, pop*
+
 

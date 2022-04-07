@@ -84,6 +84,10 @@ LOGIC:
     3) Grab first decade >> count employees
     4) increment to next decade and repeat
     5) terminate when after completing the max decade
+
+REF: 
+https://www.sqlshack.com/learn-sql-intro-to-sql-server-loops/
+https://dev.mysql.com/doc/refman/8.0/en/declare-handler.html
 */
 ####### FINISH IF TIME #####
 -- DECLARE @decade INTEGER;
