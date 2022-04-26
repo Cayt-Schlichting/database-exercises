@@ -159,8 +159,86 @@ FROM ( #grab table of population and pop*lifeExp per row
 	SELECT Population, (Population * LifeExpectancy) AS val FROM country
     ) as T1; #66.806
 
-#avg life expectancy per continent - weighted
-### WORK ON THIS LATER ###
--- SELECT continent, SUM(Population) AS pop, pop*
+#avg life expectancy per continent 
+SELECT continent, AVG(LifeExpectancy) AS life_expectancy
+FROM country
+GROUP BY continent
+ORDER BY life_expectancy;
+#avg life expectancy per continent  - weighted
+SELECT continent, (SUM(val)/SUM(Population)) AS life_expectancy
+FROM (
+	SELECT continent, Population, (Population * LifeExpectancy) AS val FROM country
+    ) as T1
+GROUP BY continent
+ORDER BY life_expectancy;
 
+#avg life expectancy per region - weighted
+SELECT Region, (SUM(val)/SUM(Population)) AS life_expectancy
+FROM (
+	SELECT Region, Population, (Population * LifeExpectancy) AS val FROM country
+    ) as T1
+GROUP BY Region
+ORDER BY life_expectancy;
 
+#Bonus
+#Countries with different local and official names
+SELECT name, LocalName
+FROM country 
+WHERE name != LocalName;
+
+#How many country have a life expectancy less than 40?
+SELECT COUNT(*)
+FROM country
+WHERE LifeExpectancy < 40;
+
+#What state is "Madison" located in?
+SELECT District FROM city
+WHERE Name = 'Madison';
+
+#What region and country of the world is Cartagena located in?
+SELECT Region, city.Name, country.Name
+FROM city
+	JOIN country ON city.CountryCode = country.Code
+WHERE city.Name = 'Cartagena';
+
+#What is the life expectancy in Cartagena
+SELECT Region, city.Name, country.Name, LifeExpectancy
+FROM city
+	JOIN country ON city.CountryCode = country.Code
+WHERE city.Name = 'Cartagena';
+
+### PIZZA DATABASE ###
+USE pizza;
+
+# topping table contains an ID, name and price
+SELECT * FROM toppings LIMIT 5;
+SELECT * FROM pizza_toppings LIMIT 5;
+#Pizza table has an ID, that you can take to pizza toppings, where you can find topping_Id per pizza 
+
+#modifier table has an id, name and price
+SELECT * FROM modifiers LIMIT 5;
+
+#number of unique toppings?
+SELECT COUNT(DISTINCT topping_id) FROM toppings; #9
+
+#number of unique orders? - DISTINCT NEEDS TO GO INSIDE COUNT!!!
+SELECT COUNT(DISTINCT order_id) FROM pizzas; #10K
+
+#What Size Pizza is sold most?
+SELECT size_name, COUNT(*) AS num_ordered
+FROM pizzas
+	JOIN sizes USING(size_id)
+GROUP BY size_id
+ORDER BY num_ordered DESC
+LIMIT 1;
+
+#How many pizzas have been sold in total
+SELECT COUNT(*) FROM pizzas; #20,001
+
+#What is the average number of pizzas per order?
+SELECT AVG(num_pizzas) 
+FROM (
+	SELECT order_id, COUNT(pizza_id) as num_pizzas
+    FROM pizzas 
+    GROUP BY order_id
+	) as T1;  #2.0001
