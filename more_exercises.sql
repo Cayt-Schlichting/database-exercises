@@ -242,3 +242,72 @@ FROM (
     FROM pizzas 
     GROUP BY order_id
 	) as T1;  #2.0001
+
+#total price per order (pizza size + modifiers + toppings)
+#For each pizza, get a price
+#size cost - join pizzas to 
+SELECT pizza_id, size_price FROM pizzas
+JOIN sizes USING(size_id);
+#modifier cost
+#get modifire price per pizza
+SELECT pizza_id, modifier_price FROM pizza_modifiers
+JOIN modifiers USING(modifier_id);
+
+SELECT DISTINCT pizza_id FROM pizza_modifiers; #Confirm only one modifier per pizza
+
+#Topping cost
+SELECT * FROM pizza_toppings; #47654
+SELECT DISTINCT pizza_id FROM pizza_toppings; #17453
+#so get pizza id and topping cost
+-- SELECT pizza_id, ROUND(SUM(topping_price),2) as topping_price
+-- FROM (SELECT pizza_id, topping_price
+-- 	FROM pizza_toppings
+-- 	JOIN toppings USING(topping_id)) AS T1
+-- GROUP BY pizza_id; #17453
+
+SELECT pizza_id, ROUND(SUM(topping_price),2) as topping_price
+FROM pizza_toppings
+JOIN toppings USING(topping_id)
+GROUP BY pizza_id; #17453
+
+
+####Trying to combine into one didn't seem to work
+-- SELECT pizza_id, ROUND(SUM(topping_price),2) as topping_price, size_price, modifier_price, topping_id, modifier_id, size_id 
+-- FROM pizza_toppings
+-- JOIN pizzas USING(pizza_id)
+-- JOIN toppings USING(topping_id)
+-- JOIN pizza_modifiers USING(modifier_id)
+-- JOIN sizes USING(size_id)
+-- JOIN modifiers USING(modifier_id)
+-- GROUP BY pizza_id; #17453
+
+-- Error Code: 1054. Unknown column 'modifier_id' in 'from clause'
+SELECT pizza_id, topping_price, size_price, modifier_price, (topping_price + size_price + modifier_price) as total_price
+FROM (SELECT pizza_id, ROUND(SUM(topping_price),2) as topping_price
+	FROM pizza_toppings
+	JOIN toppings USING(topping_id)
+	GROUP BY pizza_id) as top
+JOIN (SELECT pizza_id, size_price FROM pizzas JOIN sizes USING(size_id)) AS size USING(pizza_id)
+JOIN (SELECT pizza_id, modifier_price FROM pizza_modifiers JOIN modifiers USING(modifier_id)) as modif USING(pizza_id);
+
+
+SELECT pizza_id, order_id, topping_price, size_price, modifier_price, ROUND((COALESCE(topping_price,0) + size_price + COALESCE(modifier_price,0)),2) as total_price
+FROM (SELECT pizza_id, order_id, size_price FROM pizzas JOIN sizes USING(size_id)) AS size
+LEFT JOIN (SELECT pizza_id, ROUND(SUM(topping_price),2) as topping_price
+	FROM pizza_toppings
+	JOIN toppings USING(topping_id)
+	GROUP BY pizza_id) as top USING(pizza_id)
+LEFT JOIN (SELECT pizza_id, modifier_price FROM pizza_modifiers JOIN modifiers USING(modifier_id)) as modif USING(pizza_id);
+
+
+#####FINAL - GET TOTAL PRICE PER ORDER
+SELECT order_id,  ROUND(SUM((COALESCE(topping_price,0) + size_price + COALESCE(modifier_price,0))),2) as total_order_price #1 row per pizza, add prices together, then aggregate pizza prices per order
+FROM (SELECT pizza_id, order_id, size_price FROM pizzas JOIN sizes USING(size_id)) AS size #subquery get size price
+LEFT JOIN (SELECT pizza_id, ROUND(SUM(topping_price),2) as topping_price #subquery gets aggregated topping price
+	FROM pizza_toppings
+	JOIN toppings USING(topping_id)
+	GROUP BY pizza_id) as top USING(pizza_id)
+LEFT JOIN (SELECT pizza_id, modifier_price FROM pizza_modifiers JOIN modifiers USING(modifier_id)) as modif USING(pizza_id) #subquery gets modifier price
+GROUP BY order_id;
+
+
